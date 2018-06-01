@@ -1,0 +1,31 @@
+# Webpages
+
+ncaaYearCodes <- function(Year) {
+  webpage_codes <- data.frame(
+    'Year'=c(2018,2017,2016,2015,2014,2013),
+    'YearId'=c(12973,12560,12360,12080,11620,11320),
+    'Hitting'=c(11953,11000,10946,10780,10460,10120),
+    'Pitching'=c(11954,11001,10947,10781,10461,10121),
+    'Fielding'=c(11955,11002,10948,10782,10462,10122)
+  )
+  if(Year %in% webpage_codes$Year){
+    return(webpage_codes[which(Year==webpage_codes$Year),])
+  } else {
+    return('Only available for years 2013 through 2018')
+  }
+
+}
+
+game_codes <- function(team_num,Year){
+  game_codes <- data.frame('gameID'=c(),'YearId'=c())
+  year <- read_html(paste0('http://stats.ncaa.org/team/',team_num,'/',codes$YearId))
+  year <- as.character(year)
+  game_codes_single_year <- str_match_all(year, "(?s)/game/index/(.*?)\\?")[[1]][,2]
+  game_temp <- data.frame('gameID'=c(game_codes_single_year))
+  game_temp$YearId = codes$YearId
+  game_codes <- rbind(game_codes,game_temp)
+  game_codes <- merge(game_codes,codes,by='YearId',all.x=T)
+  return(game_codes)
+}
+
+

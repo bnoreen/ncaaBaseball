@@ -1,0 +1,16 @@
+Package: ncaaBaseball
+Type: Package
+Title: Downloads and aggregates info from NCAA website
+Version: 0.1.0
+Author: Bryan Noreen
+Maintainer: Bryan Noreen <BryanNoreen@gmail.com>
+Description: NCAA baseball game data, player data, season data.
+License: None
+Encoding: UTF-8
+LazyData: true
+Depends:
+    rvest,
+    baseballr,
+    xml2,
+    stringr
+RoxygenNote: 6.0.1
