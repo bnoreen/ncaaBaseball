@@ -167,6 +167,22 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
     names(info) = info[2,]
     info <- info[3:nrow(info),]
     info[info==""] = "0"
+    info[] <- lapply(info, gsub, pattern="'", replacement="")
+    info[] <- lapply(info, gsub, pattern="\t", replacement="")
+    info[] <- lapply(info, gsub, pattern="\t", replacement="")
+
+    if(type=='hitting'){
+    suppressWarnings(info[,3:ncol(info)] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(x))))
+    info$Slugging <- round(info$TB/info$AB,3)
+
+    info$OBP = round((info$H + info$BB + info$HBP)/
+      (info$AB + info$BB + info$HBP + info$SF),3)
+    info$OPS = round(info$Slugging + info$OBP,3)
+
+    info$Slugging <- ifelse(info$AB == 0, NA,info$Slugging)
+    info$OBP <- ifelse(info$AB == 0, NA,info$OBP)
+    info$OPS <- ifelse(info$AB == 0, NA,info$OPS)
+    }
     info$Team = NA
     info$Opponent = NA
     info$Team[1:(nrow(info1)-3)] = team1
@@ -191,13 +207,11 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
     info$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
     info$Gamecode = game_codes$gameID[i]
 
-    info[] <- lapply(info, gsub, pattern="'", replacement="")
-    info[] <- lapply(info, gsub, pattern="\t", replacement="")
-    info[] <- lapply(info, gsub, pattern="\t", replacement="")
+
     if(type=='pitching'){
       info <- info[which(info$Pos == 'P'),]
     }
-    if(!exists("complete_table")){
+    if(i==1){
       complete_table <- info
     } else {
       complete_table <- rbind(complete_table,info)
