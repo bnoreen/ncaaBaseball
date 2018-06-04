@@ -23,6 +23,7 @@ advanced_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
 
   # Gamecode loop to get each game
   for(i in 1:nrow(game_codes)){
+
       if(type=='hitting'){
       #HITTING TABLE
       html_code <- paste0("http://stats.ncaa.org/game/situational_stats/",as.character(game_codes$gameID[i]),
@@ -58,9 +59,6 @@ advanced_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
           temp <- substr(htmltext,location[[1]][1]-1,
                          location[[1]][1]-1)
           starter <- ifelse(temp %in% c('\n','>'),1,0)
-          temp <- unlist(strsplit(info$Player[ii],','))
-          temp <- paste(trimws(temp[2]),temp[1])
-          info$Player[ii]=temp
           info$Starter[ii] = starter
         }#close 10 rows up
         hit_table <- data.frame('Player'=info$Player,stringsAsFactors = F)
@@ -74,7 +72,7 @@ advanced_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
         hit_table$Team <- NA
         hit_table$Opponent <- NA
 
-        if(length(which(grepl(" Total", hit_table$Player)))<2){
+        if(length(which(grepl(" Total", hit_table$Player)))==2){
         team1 <- hit_table[which(grepl(" Total", hit_table$Player))[1],]$Player
         team1 <- gsub(" Totals","",team1)
         team2 <- hit_table[which(grepl(" Total", hit_table$Player))[2],]$Player
@@ -97,14 +95,16 @@ advanced_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
         hit_table$game_number = i
         hit_table$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
         hit_table$GameCode = game_codes$gameID[i]
-      }#close if
-     if(!exists("complete_table")){
+
+     if(i==1){
         complete_table <- hit_table
       } else {
         complete_table <- rbind(complete_table,hit_table)
       }
+
       setTxtProgressBar(pb, i)
-      }#if less than 2 teams close
+        }#close if not 2 teams
+      }#close if html not list
       }
   close(pb)
   if(bothteams==FALSE){
@@ -193,6 +193,7 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
 
     info[] <- lapply(info, gsub, pattern="'", replacement="")
     info[] <- lapply(info, gsub, pattern="\t", replacement="")
+    info[] <- lapply(info, gsub, pattern="\t", replacement="")
     if(type=='pitching'){
       info <- info[which(info$Pos == 'P'),]
     }
@@ -230,6 +231,7 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
 
   # Gamecode loop to get each game
   for(i in 1:nrow(game_codes)){
+
       html_code <- paste0("http://stats.ncaa.org/game/box_score/",as.character(game_codes$gameID[i]))
       try(html_code <- read_html(html_code))
       if(typeof(html_code)=='list'){
@@ -256,7 +258,11 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
         game_table$Weather =  strsplit(as.character(info2[1]),':')[[1]][2]
         game_table$Location = str_match_all(html_code, "(?s)Location:</td>\n      <td>(.*?)</td>\n")[[1]][,2]
         attendance = str_match_all(html_code, "(?s)Attendance:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]
-        game_table$Attendance = gsub(',','',attendance)
+        if(identical(attendance, character(0)) ){
+          game_table$Attendance = NA
+        } else {
+          game_table$Attendance = gsub(',','',attendance)
+        }
         umps <- str_match_all(html_code, "(?s)Officials:(.*?)</td>\n   </tr>")[[1]][,2]
         game_table$home_umpire = trimws(substr(umps,gregexpr(pattern ='\n',umps)[[1]][3]+1,
                                          gregexpr(pattern ='\n',umps)[[1]][4]-1))
@@ -267,7 +273,7 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
         game_table$GameCode = game_codes$gameID[i]
         game_table$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
 
-        if(!exists("complete_table")){
+        if(i==1){
           complete_table <- game_table
         } else {
           complete_table <- rbind(complete_table,game_table)
