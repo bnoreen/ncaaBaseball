@@ -10,7 +10,7 @@ Encoding: UTF-8
 LazyData: true
 Depends:
     rvest,
-    baseballr,
     xml2,
     stringr
+Suggests: baseballr
 RoxygenNote: 6.0.1
