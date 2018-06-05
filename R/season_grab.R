@@ -242,7 +242,8 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
     game_codes <- game_codes[(length(game_codes)-game_count+1):length(game_codes)]
   }
   pb <- txtProgressBar(min = 0, max = nrow(game_codes), style = 3)
-
+  innings = c('In1','In2','In3','In4','In5','In6','In7','In8','In9',
+              'In10','In11','In12','In13','In14','In15','In16','In17','In18')
   # Gamecode loop to get each game
   for(i in 1:nrow(game_codes)){
 
