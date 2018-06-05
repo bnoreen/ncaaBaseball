@@ -29,6 +29,7 @@ ncaaYearCodes <- function(year) {
 #' game_codes()
 game_codes <- function(team_num,Year){
   game_codes <- data.frame('gameID'=c(),'YearId'=c())
+  codes <- ncaaYearCodes(Year)
   year <- read_html(paste0('http://stats.ncaa.org/team/',team_num,'/',codes$YearId))
   year <- as.character(year)
   game_codes_single_year <- str_match_all(year, "(?s)/game/index/(.*?)\\?")[[1]][,2]
