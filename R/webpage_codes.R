@@ -1,6 +1,10 @@
-# Webpages
-
-ncaaYearCodes <- function(Year) {
+#' ncaaYearCodes function
+#'
+#' This function takes a dataframe from advanced_stats or box_stats and aggregates.
+#' @param year The year to grab codes for
+#' @keywords ncaa, baseball, college
+#' ncaaYearCodes()
+ncaaYearCodes <- function(year) {
   webpage_codes <- data.frame(
     'Year'=c(2018,2017,2016,2015,2014,2013),
     'YearId'=c(12973,12560,12360,12080,11620,11320),
@@ -8,14 +12,21 @@ ncaaYearCodes <- function(Year) {
     'Pitching'=c(11954,11001,10947,10781,10461,10121),
     'Fielding'=c(11955,11002,10948,10782,10462,10122)
   )
-  if(Year %in% webpage_codes$Year){
-    return(webpage_codes[which(Year==webpage_codes$Year),])
+  if(year %in% webpage_codes$Year){
+    return(webpage_codes[which(year==webpage_codes$Year),])
   } else {
-    return('Only available for years 2013 through 2018')
+    stop('Only available for years 2013 through 2018')
   }
 
 }
 
+#' game_codes function
+#'
+#' This function takes a dataframe from advanced_stats or box_stats and aggregates.
+#' @param team_num The team number to grab codes for
+#' @param year The year to grab codes for
+#' @keywords ncaa, baseball, college
+#' game_codes()
 game_codes <- function(team_num,Year){
   game_codes <- data.frame('gameID'=c(),'YearId'=c())
   year <- read_html(paste0('http://stats.ncaa.org/team/',team_num,'/',codes$YearId))

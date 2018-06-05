@@ -12,5 +12,5 @@ Depends:
     rvest,
     xml2,
     stringr
-Suggests: baseballr
+Remotes: github::BillPetti/baseballr
 RoxygenNote: 6.0.1
