@@ -16,9 +16,9 @@ advanced_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
 
   game_codes <- game_codes(team_num,year)
   if(!is.null(game_count)){
-    game_codes <- game_codes[(length(game_codes)-game_count+1):length(game_codes)]
+    game_codes <- game_codes[(nrow(game_codes)-game_count+1):nrow(game_codes),]
   }
-  #game_codes = game_codes[(nrow(game_codes)-5):nrow(game_codes),]
+
   pb <- txtProgressBar(min = 0, max = nrow(game_codes), style = 3)
 
   # Gamecode loop to get each game
@@ -130,7 +130,7 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
 
   game_codes <- game_codes(team_num,year)
   if(!is.null(game_count)){
-    game_codes <- game_codes[(length(game_codes)-game_count+1):length(game_codes)]
+    game_codes <- game_codes[(nrow(game_codes)-game_count+1):nrow(game_codes),]
   }
   pb <- txtProgressBar(min = 0, max = nrow(game_codes), style = 3)
 
@@ -239,7 +239,7 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
 
   game_codes <- game_codes(team_num,year)
   if(!is.null(game_count)){
-    game_codes <- game_codes[(length(game_codes)-game_count+1):length(game_codes)]
+    game_codes <- game_codes[(nrow(game_codes)-game_count+1):nrow(game_codes),]
   }
   pb <- txtProgressBar(min = 0, max = nrow(game_codes), style = 3)
   innings = c('In1','In2','In3','In4','In5','In6','In7','In8','In9',
@@ -300,5 +300,6 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
   if(bothteams==FALSE){
     complete_table = complete_table[which(complete_table$Team==as.character(names(sort(table(complete_table$Team),decreasing=TRUE))[1])),]
   }
+
   return(complete_table)
 }

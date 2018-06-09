@@ -9,13 +9,13 @@
 #' by_player()
 by_player <- function(dframe,type='sum'){
   if(type=='sum'){
-    final <- dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,sum)
+    final <- dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,function(x){sum(x,na.rm=T)})
   } else if (type=='mean'){
-    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,function(x){mean(x,na.rm=T)})
   } else if (type == 'max'){
-    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,function(x){max(x,na.rm=T)})
   } else if (type == 'min'){
-    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team,Player) %>% summarise_if(is.numeric,function(x){min(x,na.rm=T)})
   } else {
     stop('type needs to be sum, mean, min, or max.')
   }
@@ -34,13 +34,13 @@ by_player <- function(dframe,type='sum'){
 #' by_team()
 by_team <- function(dframe,type='sum'){
   if(type=='sum'){
-    final <- dframe %>% group_by(Team) %>% summarise_if(is.numeric,sum)
+    final <- dframe %>% group_by(Team) %>% summarise_if(is.numeric,function(x){sum(x,na.rm=T)})
   } else if (type=='mean'){
-    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,function(x){mean(x,na.rm=T)})
   } else if (type == 'max'){
-    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,function(x){max(x,na.rm=T)})
   } else if (type == 'min'){
-    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,sum)
+    final <-dframe %>% group_by(Team) %>% summarise_if(is.numeric,function(x){min(x,na.rm=T)})
   } else {
     stop('type needs to be sum, mean, min, or max.')
   }
