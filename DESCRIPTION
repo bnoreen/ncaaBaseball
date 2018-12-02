@@ -11,6 +11,8 @@ LazyData: true
 Depends:
     rvest,
     xml2,
-    stringr
-Remotes: github::BillPetti/baseballr
+    stringr,
+    baseballr,
+    elo
+Remotes: BillPetti/baseballr
 RoxygenNote: 6.0.1
