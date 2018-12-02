@@ -204,7 +204,9 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
       info$Starter[ii] = starter
     }#close 10 rows up
     info$game_number = i
-    info$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
+    date_temp = as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2])
+    date_temp = unlist(strsplit(date_temp,'/'))
+    info$date = as.Date(paste0(str_sub(date_temp[1],-2,-1),'/',date_temp[2],'/',str_sub(date_temp[3],0,4)))
     info$Gamecode = game_codes$gameID[i]
 
 
