@@ -12,7 +12,6 @@ Depends:
     rvest,
     xml2,
     stringr,
-    baseballr,
     elo
 Remotes: BillPetti/baseballr
 RoxygenNote: 6.0.1
