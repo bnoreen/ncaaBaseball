@@ -206,7 +206,7 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
     info$game_number = i
     date_temp = as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2])
     date_temp = unlist(strsplit(date_temp,'/'))
-    info$date = as.Date(paste0(str_sub(date_temp[1],-2,-1),'/',date_temp[2],'/',str_sub(date_temp[3],0,4)))
+    info$date = as.Date(paste0(str_sub(date_temp[1],-2,-1),'/',date_temp[2],'/',str_sub(date_temp[3],0,4)),format='%m/%d/%Y')
     info$Gamecode = game_codes$gameID[i]
 
 
@@ -222,6 +222,9 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
   }#if less than 2 teams close
   }
   close(pb)
+  if(bothteams=F){
+    complete_table = complete_table[which(complete_table$Team == sort(table(complete_table$Team),decreasing=TRUE)[1]),]
+  }
   return(complete_table)
 }
 
