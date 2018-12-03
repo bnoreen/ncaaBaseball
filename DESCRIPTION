@@ -8,7 +8,7 @@ Description: NCAA baseball game data, player data, season data.
 License: None
 Encoding: UTF-8
 LazyData: true
-Depends:
+Imports:
     rvest,
     xml2,
     stringr,
