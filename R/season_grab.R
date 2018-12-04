@@ -223,7 +223,7 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
   }
   close(pb)
   if(bothteams==F){
-    complete_table = complete_table[which(complete_table$Team == sort(table(complete_table$Team),decreasing=TRUE)[1]),]
+    complete_table = complete_table[which(complete_table$Team == names(sort(table(complete_table$Team),decreasing=TRUE)[1])),]
   }
   return(complete_table)
 }
