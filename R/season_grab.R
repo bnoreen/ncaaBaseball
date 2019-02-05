@@ -303,8 +303,21 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
         game_table$third_umpire = trimws(substr(umps,gregexpr(pattern ='\n',umps)[[1]][9]+1,
                                           gregexpr(pattern ='\n',umps)[[1]][10]-1))
         game_table$GameCode = game_codes$gameID[i]
-        game_table$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
-
+        game_table$HomeAway = c('Away','Home')
+        date_temp = str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]
+        date_temp = gsub('\\n','',date_temp)
+        date_temp = gsub(' ','',date_temp)
+        game_table$Date <- as.Date(as.character(date_temp),"%m/%d/%Y")
+        game_table$Result = NA
+        if(nrow(game_table)==2){
+        if(game_table$R[1]>game_table$R[2]){
+          game_table$Result = c('Win','Loss')
+        } else if (game_table$R[1]<game_table$R[2]){
+          game_table$Result = c('Loss','Win')
+        } else {
+          game_table$Result = c('Tie','Tie')
+        }
+        }
         if(i==1){
           complete_table <- game_table
         } else {

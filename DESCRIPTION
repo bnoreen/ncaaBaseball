@@ -13,5 +13,10 @@ Imports:
     xml2,
     stringr,
     elo
+Depends:
+    rvest,
+    xml2,
+    stringr,
+    elo
 Remotes: BillPetti/baseballr
 RoxygenNote: 6.0.1
