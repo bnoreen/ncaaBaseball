@@ -4,7 +4,7 @@
 #' data is February of 2014.
 #' @param start_date The date you want to start from the start_score.
 #' @param end_date When you would like to end
-#' @param start_sore What score you would like for teams to begin at
+#' @param start_score What score you would like for teams to begin at
 #' @param k_num K value you would like to use for results.
 #' @keywords ncaa, baseball, college, elo
 #' @export

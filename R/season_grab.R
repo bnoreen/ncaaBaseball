@@ -172,8 +172,8 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
     info[] <- lapply(info, gsub, pattern="\t", replacement="")
 
     if(type=='hitting'){
-    suppressWarnings(info[,3:ncol(info)] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(x))))
-    info$Slugging <- round(info$TB/info$AB,3)
+    info[,3:34] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(gsub("/", "", x))))
+      info$Slugging <- round(info$TB/info$AB,3)
 
     info$OBP = round((info$H + info$BB + info$HBP)/
       (info$AB + info$BB + info$HBP + info$SF),3)
@@ -224,6 +224,18 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
   close(pb)
   if(bothteams==F){
     complete_table = complete_table[which(complete_table$Team == names(sort(table(complete_table$Team),decreasing=TRUE)[1])),]
+  }
+  if(type=='pitching'){
+    complete_table[,3:34] <- lapply(complete_table[,3:34], function(x) as.numeric(gsub("/", "", x)))
+
+    complete_table$pitchers_game_score = 40 +
+      floor(complete_table$IP)*6 +
+      (complete_table$IP - floor(complete_table$IP))*20 +
+      complete_table$SO -
+      complete_table$H*2 -
+      complete_table$BB*2 -
+      complete_table$R*3 -
+      complete_table$HR.A*6
   }
   return(complete_table)
 }
