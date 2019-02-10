@@ -309,6 +309,7 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
         date_temp = gsub(' ','',date_temp)
         game_table$Date <- as.Date(as.character(date_temp),"%m/%d/%Y")
         game_table$Result = NA
+        game_table$R = as.numeric(as.character(game_table$R))
         if(nrow(game_table)==2){
         if(game_table$R[1]>game_table$R[2]){
           game_table$Result = c('Win','Loss')
