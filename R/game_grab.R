@@ -18,7 +18,7 @@ game_grab_by_date = function(date=Sys.Date(), type='hitting',situational=F){
   webpage = paste0("https://stats.ncaa.org/contests/scoreboards?utf8=%E2%9C%93&game_sport_year_ctl_id=",ncaaYearCodes(year)$YearId[1],"&conference_id=0&conference_id=0&division=1&game_date=",month,"%2F",day,"%2F",year,"&commit=Submit")
   webpage = read_html(webpage)
   webpage = as.character(webpage)
-  if(date<=Sys.Date){
+  if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
   game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
   for(i in 1:length(game_codes)){
     webpage = as.character(read_html(paste0("https://stats.ncaa.org/contests/",game_codes[i],"/box_score")))
@@ -32,11 +32,11 @@ game_grab_by_date = function(date=Sys.Date(), type='hitting',situational=F){
   } else {
     teams = str_match_all(webpage, '(?<=TEAMS_WIN\">)(.*)(?=<)')[[1]][,1]
     teams = gsub('&amp;',"&",teams)
-    return(data.frame('AwayTeam'=c(teams[seq(1,length(teams),2)]),
-                      'HomeTeam'=c(teams[seq(2,length(teams),2)])))
+    future_games = data.frame('AwayTeam'=c(teams[seq(1,length(teams),2)]),
+                              'HomeTeam'=c(teams[seq(2,length(teams),2)]))
+    return(future_games)
     
   }
-  
 }
 
 
