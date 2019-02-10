@@ -172,7 +172,8 @@ box_stats <- function(team_num,year,type,game_count=NULL,bothteams = TRUE){
     info[] <- lapply(info, gsub, pattern="\t", replacement="")
 
     if(type=='hitting'){
-    info[,3:34] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(gsub("/", "", x))))
+      info[,3:ncol(info)] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(gsub("/", "", x))))
+
       info$Slugging <- round(info$TB/info$AB,3)
 
     info$OBP = round((info$H + info$BB + info$HBP)/
