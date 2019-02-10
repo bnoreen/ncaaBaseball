@@ -1,40 +1,40 @@
-team_list <- read.csv('C:/Users/bhnoreen/Documents/Data Projects/ncaa baseball/team_list.csv')
-team_list = team_list[which(team_list$division==1 & team_list$year==2018),]
-
-for(i in 91:nrow(team_list)){
-  if(i==1){
-    complete_list = game_stats(team_list[i,]$school_id,2018)
-  } else {
-    complete_list = rbind(complete_list,game_stats(team_list[i,]$school_id,2018))
-    print(paste0(i,' /297'))
-  }
-  
-}
-complete_list$Opponent = as.character(NA)
-backup_complete_list = complete_list
-
-complete_list = complete_list[!duplicated(complete_list[,c('Team','GameCode')]),]
-
-complete_list$Team = as.character(complete_list$Team)
-for (i in unique(complete_list$GameCode)){
-  temp=complete_list[which(complete_list$GameCode==i),]$Team
-  complete_list[which(complete_list$GameCode==i),]$Opponent = rev(temp)
-}
-complete_list = complete_list[which(complete_list$Team %in% team_list$school & complete_list$Opponent %in% team_list$school),]
-
-for(i in unique(complete_list$GameCode)){
-  temp = complete_list[which(complete_list$GameCode == i),]$R
-  temp = as.numeric(as.character(temp))
-  if(length(temp)==2){
-    if(temp[1]>temp[2]){
-      complete_list[which(complete_list$GameCode == i),]$Result = c('Win','Loss')
-    } else if (temp[1]<temp[2]){
-      complete_list[which(complete_list$GameCode == i),]$Result = c('Loss','Win')
-    } else {
-      complete_list[which(complete_list$GameCode == i),]$Result = c('Tie','Tie')
-    }
-  }
-}
+# team_list <- read.csv('C:/Users/bhnoreen/Documents/Data Projects/ncaa baseball/team_list.csv')
+# team_list = team_list[which(team_list$division==1 & team_list$year==2018),]
+# 
+# for(i in 91:nrow(team_list)){
+#   if(i==1){
+#     complete_list = game_stats(team_list[i,]$school_id,2018)
+#   } else {
+#     complete_list = rbind(complete_list,game_stats(team_list[i,]$school_id,2018))
+#     print(paste0(i,' /297'))
+#   }
+#   
+# }
+# complete_list$Opponent = as.character(NA)
+# backup_complete_list = complete_list
+# 
+# complete_list = complete_list[!duplicated(complete_list[,c('Team','GameCode')]),]
+# 
+# complete_list$Team = as.character(complete_list$Team)
+# for (i in unique(complete_list$GameCode)){
+#   temp=complete_list[which(complete_list$GameCode==i),]$Team
+#   complete_list[which(complete_list$GameCode==i),]$Opponent = rev(temp)
+# }
+# complete_list = complete_list[which(complete_list$Team %in% team_list$school & complete_list$Opponent %in% team_list$school),]
+# 
+# for(i in unique(complete_list$GameCode)){
+#   temp = complete_list[which(complete_list$GameCode == i),]$R
+#   temp = as.numeric(as.character(temp))
+#   if(length(temp)==2){
+#     if(temp[1]>temp[2]){
+#       complete_list[which(complete_list$GameCode == i),]$Result = c('Win','Loss')
+#     } else if (temp[1]<temp[2]){
+#       complete_list[which(complete_list$GameCode == i),]$Result = c('Loss','Win')
+#     } else {
+#       complete_list[which(complete_list$GameCode == i),]$Result = c('Tie','Tie')
+#     }
+#   }
+# }
 #enter dataframe of box_stats
 rpi = function(game_stats_frame){
   for(i in unique(game_stats_frame$Team)){
