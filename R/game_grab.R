@@ -1,6 +1,6 @@
 #' Game Grab Function
 #'
-#' This function returns a data.frame of game statistics for every game played on a particular day. If the game is in the future it will return matchups if available. 
+#' This function returns a data.frame of game statistics for every game played on a particular day. If the game is in the future it will return matchups if available.
 #' @param date The date that you want to grab in date format
 #' @param type hitting, pitching, or fielding
 #' @param situational A true/false if you want situational or box stats
@@ -9,7 +9,7 @@
 #' @examples game_grab_by_date(Sys.Date(),'hitting',TRUE)
 #' game_grab_by_date()
 game_grab_by_date = function(date=Sys.Date(), type='hitting',situational=F){
-  
+
   date = as.character(date)
   year = substr(date,1,4)
   month =substr(date,6,7)
@@ -24,7 +24,7 @@ game_grab_by_date = function(date=Sys.Date(), type='hitting',situational=F){
     webpage = as.character(read_html(paste0("https://stats.ncaa.org/contests/",game_codes[i],"/box_score")))
     game_codes[i] = str_match_all(webpage, "(?<=box_score/)(.*)(?=\\?year_stat)")[[1]][,2][1]
   }
-  
+
   game_temp <- data.frame('gameID'=c(game_codes))
   game_temp$YearId = codes$YearId
   game_codes <- merge(game_temp,codes,by='YearId',all.x=T)
@@ -35,7 +35,7 @@ game_grab_by_date = function(date=Sys.Date(), type='hitting',situational=F){
     future_games = data.frame('AwayTeam'=c(teams[seq(1,length(teams),2)]),
                               'HomeTeam'=c(teams[seq(2,length(teams),2)]))
     return(future_games)
-    
+
   }
 }
 
@@ -44,7 +44,7 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
   # Gamecode loop to get each game
   if(situational==T){
     for(i in 1:nrow(game_codes)){
-      
+      print(paste0('Grabbing game ',i,' of ',nrow(game_codes),'...'))
       if(type=='hitting'){
         #HITTING TABLE
         html_code <- paste0("http://stats.ncaa.org/game/situational_stats/",as.character(game_codes$gameID[i]),
@@ -65,7 +65,7 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
         info <- html_code %>%
           html_nodes("table+ .mytable") %>%
           html_table(fill=TRUE)
-        
+
         #removing NA columns
         info <- info[[1]][,1:columns_to_keep]
         #setting names
@@ -92,7 +92,7 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
         }#close 5 up
         hit_table$Team <- NA
         hit_table$Opponent <- NA
-        
+
         if(length(which(grepl(" Total", hit_table$Player)))==2){
           team1 <- hit_table[which(grepl(" Total", hit_table$Player))[1],]$Player
           team1 <- gsub(" Totals","",team1)
@@ -103,36 +103,36 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
           hit_table[1:which(grepl(" Total", hit_table$Player))[1],]$Opponent <- team2
           hit_table[which(grepl(" Total", hit_table$Player))[1]:nrow(hit_table),]$Opponent <- team1
           hit_table <- hit_table[-which(grepl(" Totals", hit_table$Player)),]
-          
-          
+
+
           for(ii in 1:nrow(hit_table)){
             temp <- unlist(strsplit(hit_table$Player[ii],','))
             temp <- temp[1:length(temp)-1]
             temp <- paste(trimws(temp[2]),temp[1])
             hit_table$Player[ii]=temp
           }#close 5 up
-          
+
           hit_table$TeamId=team_num
           hit_table$game_number = i
           hit_table$Date <- as.Date(as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2]),"%m/%d/%Y")
           hit_table$GameCode = game_codes$gameID[i]
-          
+
           if(i==1){
             complete_table <- hit_table
           } else {
             complete_table <- rbind(complete_table,hit_table)
           }
-          
-          
+
+
         }#close if not 2 teams
       }#close if html not list
     }
-   
+
     if(bothteams==FALSE){
       complete_table = complete_table[which(complete_table$Team==as.character(names(sort(table(complete_table$Team),decreasing=TRUE))[1])),]
     }
     return(complete_table)
-    
+
 } else if (situational==F){
   for(i in 1:nrow(game_codes)){
     if(type=='hitting'){
@@ -145,18 +145,18 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
       html_code <- paste0("http://stats.ncaa.org/game/box_score/",as.character(game_codes$gameID[i]),
                           '?year_stat_category_id=',game_codes$Fielding[i])
     }
-    
+
     try(html_code <- read_html(html_code))
     if(typeof(html_code)=='list'){
       #grabbing all play by play
-      
+
       info1 <- html_code %>%
         html_nodes("table+ .mytable") %>%
         html_table(fill=TRUE)
       info2 <- html_code %>%
         html_nodes("br+ .mytable") %>%
         html_table(fill=TRUE)
-      
+
       #removing NA columns
       info1 <- info1[[1]]
       info2 <- info2[[2]]
@@ -169,15 +169,15 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
       info[] <- lapply(info, gsub, pattern="'", replacement="")
       info[] <- lapply(info, gsub, pattern="\t", replacement="")
       info[] <- lapply(info, gsub, pattern="\t", replacement="")
-      
+
       if(type=='hitting'){
         info[,3:34] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(gsub("/", "", x))))
         info$Slugging <- round(info$TB/info$AB,3)
-        
+
         info$OBP = round((info$H + info$BB + info$HBP)/
                            (info$AB + info$BB + info$HBP + info$SF),3)
         info$OPS = round(info$Slugging + info$OBP,3)
-        
+
         info$Slugging <- ifelse(info$AB == 0, NA,info$Slugging)
         info$OBP <- ifelse(info$AB == 0, NA,info$OBP)
         info$OPS <- ifelse(info$AB == 0, NA,info$OPS)
@@ -207,8 +207,8 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
       date_temp = unlist(strsplit(date_temp,'/'))
       info$date = as.Date(paste0(str_sub(date_temp[1],-2,-1),'/',date_temp[2],'/',str_sub(date_temp[3],0,4)),format='%m/%d/%Y')
       info$Gamecode = game_codes$gameID[i]
-      
-      
+
+
       if(type=='pitching'){
         info <- info[which(info$Pos == 'P'),]
       }
@@ -217,16 +217,16 @@ game_grab = function(game_codes,type='hitting',situational=F,bothteams=T){
       } else {
         complete_table <- rbind(complete_table,info)
       }
-     
+
     }#if less than 2 teams close
   }
-  
+
   if(bothteams==F){
     complete_table = complete_table[which(complete_table$Team == names(sort(table(complete_table$Team),decreasing=TRUE)[1])),]
   }
   if(type=='pitching'){
     complete_table[,3:34] <- lapply(complete_table[,3:34], function(x) as.numeric(gsub("/", "", x)))
-    
+
     complete_table$pitchers_game_score = 40 +
       floor(complete_table$IP)*6 +
       (complete_table$IP - floor(complete_table$IP))*20 +
