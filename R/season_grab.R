@@ -329,7 +329,7 @@ game_stats <- function(team_num,year,game_count=NULL,bothteams = TRUE){
   }
   close(pb)
 
-  }
+
   if(bothteams==FALSE){
     complete_table = complete_table[which(complete_table$Team==as.character(names(sort(table(complete_table$Team),decreasing=TRUE))[1])),]
   }
