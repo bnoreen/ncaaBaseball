@@ -18,6 +18,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
   webpage = as.character(webpage)
   if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
   game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
+  if(length(game_codes)>0){
   print(paste0('Downloading ',length(game_codes),' games from ', date,'...'))
   pb <- txtProgressBar(min = 0, max = length(game_codes), style = 3)
   for(i in 1:length(game_codes)){
@@ -105,7 +106,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
    setTxtProgressBar(pb, i)
     if(i==1){complete_table=info} else {complete_table=rbind(complete_table,info)}
    if(i==1){complete_box_scores=box_score} else {complete_box_scores=rbind(complete_box_scores,box_score)}
-    }
+  }
+  } else {
+    print(paste0('No games available for download on', date,'...'))
+  }
 
   # game_temp <- data.frame('gameID'=c(game_codes))
   # game_temp$YearId = codes$YearId
