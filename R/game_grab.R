@@ -106,10 +106,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
    setTxtProgressBar(pb, i)
     if(i==1){complete_table=info} else {complete_table=rbind(complete_table,info)}
    if(i==1){complete_box_scores=box_score} else {complete_box_scores=rbind(complete_box_scores,box_score)}
-  }
-  } else {
-    print(paste0('No games available for download on', date,'...'))
-  }
+
 
   # game_temp <- data.frame('gameID'=c(game_codes))
   # game_temp$YearId = codes$YearId
@@ -121,6 +118,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
   fielding_stats = complete_table[,c(1,2,3,25,27,37,39,50,57,58,59,60,62,63,72,73,74,75,76,77)]
   wrapup = list(hitting_stats,pitching_stats,fielding_stats,complete_box_scores)
   return(wrapup)
+  }
+  } else {
+    print(paste0('No games available for download on ', date,'...'))
+  }
   } else {
     teams = str_match_all(webpage, '(?<=TEAMS_WIN\">)(.*)(?=<)')[[1]][,1]
     teams = gsub('&amp;',"&",teams)
