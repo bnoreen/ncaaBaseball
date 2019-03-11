@@ -15,6 +15,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
   codes <- ncaaYearCodes(year)
   webpage = paste0("https://stats.ncaa.org/contests/scoreboards?utf8=%E2%9C%93&game_sport_year_ctl_id=",ncaaYearCodes(year)$YearId[1],"&conference_id=0&conference_id=0&division=1&game_date=",month,"%2F",day,"%2F",year,"&commit=Submit")
   webpage = read_html(webpage)
+  neutral = webpage %>% html_nodes("table")%>%
+    html_table(fill=TRUE)
+  neutral = neutral[[1]]
+  neutral = neutral[,(ncol(neutral)-1)]
   webpage = as.character(webpage)
   if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
   game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
@@ -45,6 +49,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
+    box_score$HomeAway = ifelse(!is.na(neutral[i]),'Neutral',box_score$HomeAway)
+    box_score$Opponent = c(box_score$Team[2],box_score$Team[1])
+    box_score$Gamecode = game_codes[i]
+
     #removing NA columns
     info1 <- tables[[6]]
     info2 <- tables[[7]]
@@ -92,7 +100,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
       date_temp = as.character(str_match_all(html_code, "(?s)Game Date:</td>\n      <td>(.*?)</td>\n   </tr>")[[1]][,2])
       date_temp = unlist(strsplit(date_temp,'/'))
       info$date = as.Date(paste0(str_sub(date_temp[1],-2,-1),'/',date_temp[2],'/',str_sub(date_temp[3],0,4)),format='%m/%d/%Y')
-      info$Gamecode = str_match_all(webpage, "(?<=box_score/)(.*)(?=\\?year_stat)")[[1]][,2][1]
+      info$Gamecode = game_codes[i]
       info$pitchers_game_score = 40 +
         floor(info$IP)*6 +
         (info$IP - floor(info$IP))*20 +
@@ -102,25 +110,44 @@ game_grab_by_date = function(date=Sys.Date()-1){
         info$R*3 -
         info$`HR-A`*6
       info$pitchers_game_score = ifelse(info$Pos=='P',info$pitchers_game_score,NA)
-
    setTxtProgressBar(pb, i)
     if(i==1){complete_table=info} else {complete_table=rbind(complete_table,info)}
    if(i==1){complete_box_scores=box_score} else {complete_box_scores=rbind(complete_box_scores,box_score)}
 
-
+}
   # game_temp <- data.frame('gameID'=c(game_codes))
   # game_temp$YearId = codes$YearId
   # game_codes <- merge(game_temp,codes,by='YearId',all.x=T)
   # return(game_grab(game_codes, as.numeric(year),type, situational))
   complete_table$G = 1
-  hitting_stats = complete_table[,c(1,2,3,7,8,10,13,15,16,17,19,21,23,26,30,32,34,35,41,52,68,69,70,71,72,73,74,75,76,77)]
-  pitching_stats = complete_table[,c(1,2,3,4,5,6,9,11,12,14,18,20,22,24,28,29,31,33,36,38,40,42,43,44,45,46,47,48,49,51,53,54,55,56,78,72,73,74,75,76,77)]
-  fielding_stats = complete_table[,c(1,2,3,25,27,37,39,50,57,58,59,60,62,63,72,73,74,75,76,77)]
-  wrapup = list(hitting_stats,pitching_stats,fielding_stats,complete_box_scores)
+    # hitting_stats = complete_table[,c('Player','Pos','G',7,8,10,13,15,16,17,19,21,23,26,30,32,34,35,41,52,68,69,70,71,72,73,74,75,76,77)]
+    # pitching_stats = complete_table[,c(1,2,3,4,5,6,9,11,12,14,18,20,22,24,28,29,31,33,36,38,40,42,43,44,45,46,47,48,49,51,53,54,55,56,78,72,73,74,75,76,77)]
+    # fielding_stats = complete_table[,c(1,2,3,25,27,37,39,50,57,58,59,60,62,63,72,73,74,75,76,77)]
+    names(complete_table) = gsub('.1','',names(complete_table))
+    names(complete_table) = gsub('-','.',names(complete_table))
+    names(complete_table) = gsub(' ','.',names(complete_table))
+    names(complete_table) = gsub('2B','X2B',names(complete_table))
+    names(complete_table) = gsub('3B','X3B',names(complete_table))
+    names(complete_table)[which(names(complete_table)=='BB')[1]] = 'BB.P'
+    hitting_stats = complete_table[,c('Player','Pos','G','R','AB','H','X2B','PO','X3B','TB','HR','RBI','BB','HBP','SF','SH','K','DP','SB',
+                                      'RBI2out','LOB','Slugging','OBP','OPS','Team','Opponent','Starter','game_number','date','Gamecode')]
+    names(complete_table)[which(names(complete_table)=='H')[1]] = 'H.H'
+    names(complete_table)[which(names(complete_table)=='R')[1]] = 'R.H'
+    pitching_stats = complete_table[,c('Player','Pos','G','App','GS','IP','CG','H','R','ER','BB.P','SO','SHO','BF','P.OAB','X2B.A','X3B.A','Bk','HR.A','WP','HB','IBB','Inh.Run','Inh.Run.Score',
+                                       'SHA','SFA','Pitches','GO','FO','W','L','SV','OrdAppeared','KL','pitchers_game_score',
+                                       'Team','Opponent','Starter','game_number','date','Gamecode')]
+    if(year <= 2016){complete_table$TC = NA}
+    fielding_stats = complete_table[,c('Player','Pos','G','TC','A','CS','Picked','E','CI','PB','SBA',
+                                       'CSB','IDP','TP','Team','Opponent','Starter','game_number','date','Gamecode')]
+    names(pitching_stats)[which(names(pitching_stats)=='BB.P')[1]] = 'BB'
+    wrapup = list(hitting_stats,pitching_stats,fielding_stats,complete_box_scores)
+
   return(wrapup)
-  }
+
   } else {
     print(paste0('No games available for download on ', date,'...'))
+    wrapup = NA
+    return(wrapup)
   }
   } else {
     teams = str_match_all(webpage, '(?<=TEAMS_WIN\">)(.*)(?=<)')[[1]][,1]
