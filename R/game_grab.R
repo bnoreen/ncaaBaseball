@@ -53,7 +53,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
-    for(i in 1:nrow(neutral)){
+    for(i in 1:length(neutral)){
       if(neutral[i]==1){
         box_score$HomeAway= 'Neutral'
       }
