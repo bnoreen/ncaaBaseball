@@ -18,6 +18,11 @@ game_grab_by_date = function(date=Sys.Date()-1){
   neutral = webpage %>% html_nodes(".totalcol+td")
   neutral = gsub(' ','',neutral)
   neutral =ifelse(neutral == '<tdrowspan="2">\n</td>',0,1)
+
+  bscores = webpage %>% html_nodes("table") %>% html_table(fill=TRUE)
+  bscores = bscores[[1]]
+  bscores = bscores[seq(5,nrow(bscores),5),1]
+  neutral = neutral[which(bscores=='Box Score')]
   webpage = as.character(webpage)
   if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
   game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
@@ -48,6 +53,12 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
+    for(i in 1:nrow(neutral)){
+      if(neutral[i]==1)){
+        box_score$HomeAway= 'Neutral'
+      }
+    }
+
     box_score$HomeAway = ifelse(neutral[i]==1,'Neutral',box_score$HomeAway)
     box_score$Opponent = c(box_score$Team[2],box_score$Team[1])
     box_score$Gamecode = game_codes[i]
