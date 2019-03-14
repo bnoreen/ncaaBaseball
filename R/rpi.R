@@ -9,6 +9,7 @@
 rpi = function(game_stats_frame){
 
   if(inherits(game_stats_frame$Date,'Date')){
+    data(team_list)
     team_list1=team_list[which(team_list$year == substr(game_stats_frame$Date,1,4)[1] & team_list$division==1),]
     game_stats_frame = game_stats_frame[which(game_stats_frame$Team %in% team_list1$school & game_stats_frame$Opponent %in% team_list1$school),]
     #add rpi and sos if they do not exist
