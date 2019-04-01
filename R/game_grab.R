@@ -15,6 +15,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
   codes <- ncaaYearCodes(year)
   webpage = paste0("https://stats.ncaa.org/contests/scoreboards?utf8=%E2%9C%93&game_sport_year_ctl_id=",ncaaYearCodes(year)$YearId[1],"&conference_id=0&conference_id=0&division=1&game_date=",month,"%2F",day,"%2F",year,"&commit=Submit")
   webpage = read_html(webpage)
+
+  if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
+    game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
+    if(length(game_codes)>0){
   neutral = webpage %>% html_nodes(".totalcol+td")
   neutral = gsub(' ','',neutral)
   neutral =ifelse(neutral == '<tdrowspan="2">\n</td>',0,1)
@@ -24,9 +28,8 @@ game_grab_by_date = function(date=Sys.Date()-1){
   bscores = bscores[seq(5,nrow(bscores),5),1]
   neutral = neutral[which(bscores=='Box Score')]
   webpage = as.character(webpage)
-  if(as.Date(date,'%Y-%m-%d')<=Sys.Date()){
-  game_codes = str_match_all(webpage, "(?<=contests/)(.*)(?=/box_score)")[[1]][,2]
-  if(length(game_codes)>0){
+
+
   print(paste0('Downloading ',length(game_codes),' games from ', date,'...'))
   pb <- txtProgressBar(min = 0, max = length(game_codes), style = 3)
   for(i in 1:length(game_codes)){
@@ -46,6 +49,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score = as.data.frame(box_score,stringsAsFactors=F); names(box_score)=box_score[1,]; box_score=box_score[2:3,]
     box_score$Weather = substr(tables[[2]][1][1,],9,nchar(tables[[2]][1][1,]))
     box_score$Date = tables[[3]][2][1,]
+    box_score$Date = as.Date(box_score$Date,tryFormat='%m/%d/%Y')
     box_score$Location = tables[[3]][2][2,]
     box_score$Attendance = tables[[3]][2][3,]
     box_score[,2:22] =  lapply(box_score[,2:22], function(x) as.numeric(as.character(gsub("/", "", x))))
@@ -53,10 +57,8 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
-    for(i in 1:length(neutral)){
       if(neutral[i]==1){
-        box_score$HomeAway= 'Neutral'
-      }
+        box_score$HomeAway = 'Neutral'
     }
 
     box_score$HomeAway = ifelse(neutral[i]==1,'Neutral',box_score$HomeAway)

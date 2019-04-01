@@ -64,11 +64,10 @@ rpi = function(game_stats_frame){
       for(i in 1:nrow(rpi_stats)){
         temp = df[which(df$Team == rpi_stats[i,]$Team),]$Opponent
         temp = rpi_stats[which(rpi_stats$Team %in% temp),]
-        rpi_stats[i,]$opp_win_perc = (sum(temp$HomeWin) + sum(temp$RoadWin))/
-          (sum(temp[,2])+sum(temp[,3])+sum(temp[,4])+sum(temp[,5]) + sum(temp[,6]))
         rpi_stats[i,]$opp_win = (sum(temp$HomeWin) + sum(temp$RoadWin) + sum(temp$NeutralWin))
         rpi_stats[i,]$opp_loss = (sum(temp$HomeLoss) + sum(temp$RoadLoss) + sum(temp$NeutralLoss))
         rpi_stats[i,]$opp_tie = (sum(temp$Ties))
+        rpi_stats[i,]$opp_win_perc = rpi_stats[i,]$opp_win/(rpi_stats[i,]$opp_win + rpi_stats[i,]$opp_loss + rpi_stats[i,]$opp_tie)
       }
       rpi_stats$opp_opp_win_perc = NA
       for(i in 1:nrow(rpi_stats)){
@@ -109,9 +108,9 @@ rpi = function(game_stats_frame){
 
       setTxtProgressBar(pb, jj)
     }
+    rpi_rank_table$Date = max(dates)
     close(pb)
-    remove(rpi_rank_table)
-    return(game_stats_frame)
+    return(list(game_stats_frame,rpi_rank_table))
 
   } else {
     return("Date column must be of type 'Date'")
