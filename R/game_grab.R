@@ -21,12 +21,11 @@ game_grab_by_date = function(date=Sys.Date()-1){
     if(length(game_codes)>0){
   neutral = webpage %>% html_nodes(".totalcol+td")
   neutral = gsub(' ','',neutral)
-  neutral =ifelse(neutral == '<tdrowspan="2">\n</td>',0,1)
+  neutral =ifelse(grepl('@',neutral),1,0)
 
   bscores = webpage %>% html_nodes("table") %>% html_table(fill=TRUE)
   bscores = bscores[[1]]
   bscores = bscores[seq(5,nrow(bscores),5),1]
-  neutral = neutral[which(bscores=='Box Score')]
   webpage = as.character(webpage)
 
 
@@ -67,11 +66,9 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
-      #if(neutral[i]==1){
-      #  box_score$HomeAway = 'Neutral'
-    #}
-
-    box_score$HomeAway = ifelse(neutral[i]==1,'Neutral',box_score$HomeAway)
+    if(neutral[i]==1){
+      box_score$HomeAway='Neutral'
+    }
     box_score$Opponent = c(box_score$Team[2],box_score$Team[1])
     box_score$Gamecode = game_codes[i]
 
@@ -87,7 +84,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
     info[] <- lapply(info, gsub, pattern="'", replacement="")
     info[] <- lapply(info, gsub, pattern="\t", replacement="")
     info[] <- lapply(info, gsub, pattern="\t", replacement="")
-    info[,3:ncol(info)] <- lapply(info[,3:ncol(info)], function(x) as.numeric(as.character(gsub("/", "", x))))
+    info[,3:ncol(info)] <- lapply(info[,3:ncol(info)], function(x) suppressWarnings(as.numeric(as.character(gsub("/", "", x)))))
     info$Slugging <- round(info$TB/info$AB,3)
 
     info$OBP = round((info$H + info$BB + info$HBP)/
