@@ -1,6 +1,7 @@
 #' RPI Function
 #'
 #' This function returns box stats dataframe with RPI and SOS column added. If RPI exists to some point it will continue.
+#' It also includes a dataframe of the most recent rpi and sos rankings
 #' @param box_stats box stat dataframe
 #' #' @keywords ncaa, baseball, college, rpi
 #' @export

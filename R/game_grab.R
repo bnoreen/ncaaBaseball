@@ -32,7 +32,7 @@ game_grab_by_date = function(date=Sys.Date()-1){
 
   print(paste0('Downloading ',length(game_codes),' games from ', date,'...'))
   pb <- txtProgressBar(min = 0, max = length(game_codes), style = 3)
-  for(i in 1:length(game_codes)){
+  for(i in c(1:length(game_codes))){
     tryCatch(html_code = (read_html(paste0("https://stats.ncaa.org/contests/",game_codes[i],"/box_score"))),
              error=function(e) html_code <<- (read_html(paste0("https://stats.ncaa.org/contests/",game_codes[i],"/box_score"))))
     #html_code = read_html(paste0("https://stats.ncaa.org/contests/",game_codes[i],"/box_score"))
@@ -41,7 +41,17 @@ game_grab_by_date = function(date=Sys.Date()-1){
     tables = html_code %>% html_nodes("table")%>%
       html_table(fill=TRUE)
     inningscores = tables[[1]]
+    if(grepl("\\d", inningscores[2,1])){
+      inningscores[2,1] = trimws(str_extract(inningscores[2,1], ".*(?=\\()"))
+    }
+    if(grepl("\\d", inningscores[32,1])){
+      inningscores[3,1] = trimws(str_extract(inningscores[3,1], ".*(?=\\()"))
+    }
+    if(ncol(inningscores)>22){
+      inningscores = inningscores[,c(1:19,(ncol(inningscores)-2):ncol(inningscores))]
+    }
     box_score = matrix(c('Team',paste0('In',seq(1,18,1)),'R','H','E',rep(NA,44)),nrow=3,byrow=T)
+
     box_score[2,1:(ncol(inningscores)-3)] = unlist(inningscores[2,1:(ncol(inningscores)-3)])
     box_score[3,1:(ncol(inningscores)-3)] = unlist(inningscores[3,1:(ncol(inningscores)-3)])
     box_score[2,20:22] = unlist(inningscores[2,(ncol(inningscores)-2):ncol(inningscores)])
@@ -57,9 +67,9 @@ game_grab_by_date = function(date=Sys.Date()-1){
     box_score$Result = as.character(ifelse(box_score$ScoreDiff>0,'W','L'))
     box_score$Result = as.character(ifelse(box_score$ScoreDiff==0,'T',as.character(box_score$Result)))
     box_score$HomeAway = c('Away','Home')
-      if(neutral[i]==1){
-        box_score$HomeAway = 'Neutral'
-    }
+      #if(neutral[i]==1){
+      #  box_score$HomeAway = 'Neutral'
+    #}
 
     box_score$HomeAway = ifelse(neutral[i]==1,'Neutral',box_score$HomeAway)
     box_score$Opponent = c(box_score$Team[2],box_score$Team[1])
@@ -122,7 +132,10 @@ game_grab_by_date = function(date=Sys.Date()-1){
         info$R*3 -
         info$`HR-A`*6
       info$pitchers_game_score = ifelse(info$Pos=='P',info$pitchers_game_score,NA)
-   setTxtProgressBar(pb, i)
+      if(length(table(colnames(info) == 'IBB'))>1){info[,which(colnames(info)=='IBB')[2]] = NULL}
+    #info = info[,!duplicated(colnames(info))]
+      setTxtProgressBar(pb, i)
+   names(info)[names(info) == 'OPP DP'] = 'DP'
     if(i==1){complete_table=info} else {complete_table=rbind(complete_table,info)}
    if(i==1){complete_box_scores=box_score} else {complete_box_scores=rbind(complete_box_scores,box_score)}
 
@@ -372,4 +385,13 @@ game_grab = function(game_codes,year=as.numeric(substr(Sys.Date(),1,4)), type='h
   }
   return(complete_table)
 }
+}
+
+
+espn_name_change = function(names){
+  names = gsub(' St.',' State',names)
+  names = gsub('State Bonaventure','St. Bonaventure',names)
+  names = gsub('Ole Miss','Mississippi',names)
+  names = gsub('Statete','State',names)
+  names = gsub('Statetete','State',names)
 }
