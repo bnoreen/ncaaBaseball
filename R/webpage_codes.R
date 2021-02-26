@@ -11,10 +11,7 @@ ncaaYearCodes <- function(year) {
     'Hitting'=c(14643,11953,11000,10946,10780,10460,10120,14760,14840),
     'Pitching'=c(14644,11954,11001,10947,10781,10461,10121,14761,14841),
     'Fielding'=c(14645,11955,11002,10948,10782,10462,10122,14762,14842)
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/master
   )
   if(year %in% webpage_codes$Year){
     return(webpage_codes[which(year==webpage_codes$Year),])
